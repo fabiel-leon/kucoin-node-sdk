@@ -148,7 +148,7 @@ class Datafeed {
         case 'welcome':
         case 'ack':
         case 'pong':
-          log(`emit: welcome_${id}`);
+          log(`emit: ${type}_${id}`);
           this.emitter.emit(`${type}_${id}`);
           break;
         case 'message':
@@ -280,7 +280,7 @@ class Datafeed {
   }
 
   _handleAfterConnect() {
-    log('recieved connect welcome ack');
+    log('received connect welcome ack');
     this.trustConnected = true;
     this._connecting = false;
 
