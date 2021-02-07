@@ -4,7 +4,7 @@ const WebSocket = require('ws');
 const EventEmitter = require('event-emitter');
 const EventAllOff = require('event-emitter/all-off');
 
-const loop = () => {};
+const loop = console.log;
 const generateId = () => '_e_' + Date.now() + (Math.random() * 365).toString(16).slice(4, 14) + 'kc';
 const getTopicPrefix = topic => topic.split(':')[0];
 // const log = (...args) => {
