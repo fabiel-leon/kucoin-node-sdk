@@ -3,8 +3,9 @@ const Http = require('./http');
 const WebSocket = require('ws');
 const EventEmitter = require('event-emitter');
 const EventAllOff = require('event-emitter/all-off');
+const queue = require('async/queue');
 
-const loop = () => {};
+const loop = () => { };
 const generateId = () => '_e_' + Date.now() + (Math.random() * 365).toString(16).slice(4, 14) + 'kc';
 const getTopicPrefix = topic => topic.split(':')[0];
 // const log = (...args) => {
@@ -78,6 +79,11 @@ class Datafeed {
     this._unsub = this._unsub.bind(this);
     this._clearPing = this._clearPing.bind(this);
     this._ping = this._ping.bind(this);
+    this.subscriptionQueue = queue(async (task, call) => {
+      this.client.send(JSON.stringify(task))
+      await new Promise((res, rej) => { setTimeout(res, 110); })
+      call()
+    })
   }
 
   async connectSocket() {
@@ -334,17 +340,17 @@ class Datafeed {
     }
 
     const id = generateId();
-    this.emitter.once(`ack_${id}`, () => {
-      log(`topic: ${topic} subscribed`, id);
-    });
-
-    this.client.send(JSON.stringify({
+    // this.emitter.once(`ack_${id}`, () => {
+    //   log(`topic: ${topic} subscribed`, id);
+    // });
+    this.subscriptionQueue.push({
       id,
       type: 'subscribe',
       topic,
       privateChannel: _private,
       response: true
-    }));
+    });
+    // this.client.send(JSON.stringify());
     log(`topic subscribe: ${topic}, send`, id);
     return new Promise((res, rej) => {
       this.emitter.once(`ack_${id}`, res);
@@ -358,16 +364,16 @@ class Datafeed {
     }
 
     const id = generateId();
-    this.emitter.once(`ack_${id}`, () => {
-      log(`topic: ${topic} unsubscribed`, id);
-    });
 
-    this.client.send(JSON.stringify({
+    this.subscriptionQueue.push({
       id,
       type: 'unsubscribe',
       topic,
-    }));
+    });
     log(`topic unsubscribe: ${topic}, send`, id);
+    return new Promise((res, rej) => {
+      this.emitter.once(`ack_${id}`, res);
+    })
   }
 
   _clearPing() {
