@@ -219,7 +219,7 @@ class Datafeed {
    * @param {boolean} _private is topic push private data
    * @returns {promise} hookId is subscribed listener id
    */
-  subscribe(topic, hook = loop, _private = false) {
+  async subscribe(topic, hook = loop, _private = false) {
     this.incrementSubscribeId += 1;
     if (this.incrementSubscribeId > 1e8) {
       this.incrementSubscribeId = 0;
@@ -239,13 +239,13 @@ class Datafeed {
     if (find.length === 0) {
       log(`topic new subscribe: ${topic}`);
       this.topicState.push([topic, _private]);
-      return this._sub(topic, _private);
+      await this._sub(topic, _private);
     } else {
       log(`topic already subscribed: ${topic}`);
     }
 
     log('subscribed listener id ', hookId);
-    return Promise.resolve(hookId);
+    return hookId;
   }
 
   /**
@@ -254,7 +254,7 @@ class Datafeed {
    * @param {string} topic
    * @param {string} hookId subscribed listener id
    */
-  unsubscribe(topic, hookId) {
+  async unsubscribe(topic, hookId) {
     const prefix = getTopicPrefix(topic);
     if (this.topicListener[prefix]) {
       const deleted = this.topicListener[prefix].filter(item => item.id !== hookId);
@@ -267,7 +267,7 @@ class Datafeed {
     log('unsubscribed listener id ', hookId);
 
     this.topicState = this.topicState.filter(record => record[0] !== topic);
-    this._unsub(topic);
+   return this._unsub(topic);
   }
 
   _distribute(message) {
@@ -357,7 +357,7 @@ class Datafeed {
     })
   }
 
-  _unsub(topic) {
+  async _unsub(topic) {
     if (!this.trustConnected) {
       log('client not connected');
       return;
