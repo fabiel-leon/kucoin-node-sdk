@@ -253,8 +253,9 @@ class Datafeed {
    * @description unsubscribe an topic by hookId
    * @param {string} topic
    * @param {string} hookId subscribed listener id
+   * @param {boolean} _private is close topic that push private data
    */
-  async unsubscribe(topic, hookId) {
+  async unsubscribe(topic, hookId, _private = false) {
     const prefix = getTopicPrefix(topic);
     if (this.topicListener[prefix]) {
       const deleted = this.topicListener[prefix].filter(item => item.id !== hookId);
@@ -267,7 +268,7 @@ class Datafeed {
     log('unsubscribed listener id ', hookId);
 
     this.topicState = this.topicState.filter(record => record[0] !== topic);
-   return this._unsub(topic);
+    return this._unsub(topic, _private);
   }
 
   _distribute(message) {
@@ -357,7 +358,7 @@ class Datafeed {
     })
   }
 
-  async _unsub(topic) {
+  async _unsub(topic, _private = false) {
     if (!this.trustConnected) {
       log('client not connected');
       return;
@@ -369,6 +370,8 @@ class Datafeed {
       id,
       type: 'unsubscribe',
       topic,
+      private: _private,
+      privateChannel: _private,
     });
     log(`topic unsubscribe: ${topic}, send`, id);
     return new Promise((res, rej) => {

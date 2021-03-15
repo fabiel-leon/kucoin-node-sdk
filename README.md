@@ -37,6 +37,19 @@ const main = async () => {
 main();
 ```
 
+### Init Configure
+```
+{
+  baseUrl: '',
+  apiAuth: {
+    key: '', // KC-API-KEY
+    secret: '', // API-Secret
+    passphrase: '', // KC-API-PASSPHRASE
+  },
+  authVersion: 2, // KC-API-KEY-VERSION. Notice: for v2 API-KEY, not required for v1 version.
+}
+```
+
 ## API Modules
 
 ### Rest/User
@@ -68,6 +81,9 @@ Signature is required for this part.
 - [x] getWithdrawalQuotas
 - [x] applyWithdraw
 - [x] cancelWithdrawal
+#### Rest/User/TradeFee
+- [x] getBasicUserFee
+- [x] getActualFeeRateBySymbols
 
 ### Rest/Trade
 ```
@@ -78,11 +94,13 @@ Signature is required for this part.
 - [x] postOrder
 - [x] postMultiOrders
 - [x] cancelOrder
+- [x] cancelOrderByClientOid
 - [x] cancelAllOrders
 - [x] getOrdersList
 - [x] getV1HistoricalOrdersList
 - [x] getRecentOrders
 - [x] getOrderByID
+- [x] getSingleActiveOrderByClientOid
 #### Rest/Trade/StopOrder
 - [x] postStopOrder
 - [x] cancelOrder
@@ -90,6 +108,7 @@ Signature is required for this part.
 - [x] getOrder
 - [x] getStopOrderList
 - [x] getOrderByClientOid
+- [x] cancelSingleOrderByClientOid
 #### Rest/Trade/Fills
 - [x] getFillsList
 - [x] getRecentFills
@@ -108,7 +127,6 @@ Signature is not required for this part
 - [x] getLevel2_20
 - [x] getLevel2_100
 - [x] getLevel2_full
-- [x] getLevel3_full_v1
 - [x] getLevel3_full
 #### Rest/Market/Histories
 - [x] getMarketHistories
@@ -121,6 +139,7 @@ Signature is not required for this part
 - [x] getMarkPrice
 - [x] getMarginConfigurationInfo
 - [x] getMarginAccount
+- [x] postMarginOrder
 #### Rest/Margin/BorrowAndLend
 - [x] postBorrowOrder
 - [x] getBorrowOrder
