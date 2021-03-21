@@ -389,7 +389,7 @@ class Datafeed {
       id,
       type: 'unsubscribe',
       topic,
-      private: _private,
+      response: true,  
       privateChannel: _private,
     });
     log(`topic unsubscribe: ${topic}, send`, id);
