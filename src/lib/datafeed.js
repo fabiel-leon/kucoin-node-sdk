@@ -197,11 +197,13 @@ class Datafeed {
       return val;
     }, []);
     await Promise.all(pros)
+    const self = this;
     return new Promise((res) => {
-      if (!this.client) return res()
-      this.client.on('close', res)
-      this.subscriptionQueue.
-        this.client.close();
+      if (!self.client) return res()
+      self.client.on('close', res)
+      self.subscriptionQueue.pause();
+      self.subscriptionQueue.kill();
+      self.client.close();
     });
   }
 
@@ -389,7 +391,7 @@ class Datafeed {
       id,
       type: 'unsubscribe',
       topic,
-      response: true,  
+      response: true,
       privateChannel: _private,
     });
     log(`topic unsubscribe: ${topic}, send`, id);
