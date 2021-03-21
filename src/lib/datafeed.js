@@ -175,16 +175,33 @@ class Datafeed {
     cl.onclose = () => {
       log('socket connect closed', this._maxId, cl._maxId);
       this._handleClose();
-
-      // try to reconnect
-      _.delay(() => {
-        this._connecting = false;
-        this.connectSocket();
-      }, 3000);
+      if (!this.disconnecting) {
+        // try to reconnect
+        _.delay(() => {
+          this._connecting = false;
+          this.connectSocket();
+        }, 3000);
+      }
     };
     return new Promise((res) => {
       this.emitter.once("welcome_" + connectId, res)
     })
+  }
+
+
+  async disconnect() {
+    this.disconnecting = true;
+    const pros = Object.keys(this.topicListener).reduce((val, topic) => {
+      const topicDes = this.topicListener[topic].map(({ id, private }) => this.unsubscribe(topic, id, private));
+      val.push(...topicDes)
+      return val;
+    }, []);
+    await Promise.all(pros)
+    return new Promise((res) => {
+      if (!this.client) return res()
+      this.client.on('close', res)
+      this.client.close();
+    });
   }
 
   _handleClose() {
@@ -198,6 +215,7 @@ class Datafeed {
       }
     });
   }
+
 
   /**
    * @name onClose
@@ -226,7 +244,7 @@ class Datafeed {
     }
 
     const hookId = this.incrementSubscribeId;
-    const listener = { hook, id: hookId };
+    const listener = { hook, id: hookId, private: _private };
     const prefix = getTopicPrefix(topic);
     if (this.topicListener[prefix]) {
       this.topicListener[prefix].push(listener);
