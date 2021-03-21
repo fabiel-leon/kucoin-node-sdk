@@ -192,7 +192,7 @@ class Datafeed {
   async disconnect() {
     this.disconnecting = true;
     const pros = Object.keys(this.topicListener).reduce((val, topic) => {
-      const topicDes = this.topicListener[topic].map(({ id, private }) => this.unsubscribe(topic, id, private));
+      const topicDes = this.topicListener[topic].map(({ id, _private }) => this.unsubscribe(topic, id, _private));
       val.push(...topicDes)
       return val;
     }, []);
@@ -200,7 +200,8 @@ class Datafeed {
     return new Promise((res) => {
       if (!this.client) return res()
       this.client.on('close', res)
-      this.client.close();
+      this.subscriptionQueue.
+        this.client.close();
     });
   }
 
@@ -244,7 +245,7 @@ class Datafeed {
     }
 
     const hookId = this.incrementSubscribeId;
-    const listener = { hook, id: hookId, private: _private };
+    const listener = { hook, id: hookId, _private };
     const prefix = getTopicPrefix(topic);
     if (this.topicListener[prefix]) {
       this.topicListener[prefix].push(listener);
